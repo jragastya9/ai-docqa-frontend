@@ -1,10 +1,9 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
-import { Providers } from './providers';
-import { Toaster } from '@/components/ui/sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
+import { PwaRegister } from '@/components/pwa-register';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,10 +16,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'LocalBiz AI — Ask AI questions about your documents',
+  title: 'LocalBiz AI',
   description:
-    'Upload a PDF and get instant AI-powered answers with source citations.',
-  keywords: ['AI', 'RAG', 'documents', 'PDF', 'small business', 'chatbot'],
+    'Chat with your business documents. Multi-tenant AI Q&A platform for small businesses.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'LocalBiz AI',
+  },
+  icons: {
+    icon: '/icons/icon-192.png',
+    apple: '/icons/icon-192.png',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0a0a0a',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -29,24 +46,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full bg-background text-foreground">
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Providers>
-            <TooltipProvider>
-              {children}
-              <Toaster position="top-right" richColors />
-            </TooltipProvider>
-          </Providers>
+          {children}
+          <Toaster />
+          <PwaRegister />
         </ThemeProvider>
       </body>
     </html>
