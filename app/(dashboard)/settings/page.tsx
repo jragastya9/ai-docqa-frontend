@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import {
   User,
   Shield,
@@ -10,6 +11,7 @@ import {
   Loader2,
   Copy,
   Check,
+  Webhook as WebhookIcon,
 } from 'lucide-react';
 import {
   Card,
@@ -136,6 +138,24 @@ function ProfileTab({ user }: { user: UserInfo | null }) {
           <Button onClick={handleSave}>Save changes</Button>
         </div>
 
+        {/* Developer section */}
+        <div className="pt-6 border-t border-border">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+            <WebhookIcon className="w-4 h-4" />
+            Developer
+          </h3>
+          <Link
+            href="/settings/webhooks"
+            className="block p-4 rounded-lg border border-border hover:bg-accent transition"
+          >
+            <p className="font-medium text-sm">Webhooks</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Send real-time events to your own systems, Slack, or Zapier
+            </p>
+          </Link>
+        </div>
+
+        {/* Danger zone */}
         <div className="pt-6 border-t border-border">
           <h3 className="text-sm font-semibold text-destructive mb-3 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
@@ -586,7 +606,7 @@ function SecurityTab() {
           </p>
           <Button
             variant="outline"
-            onClick={() => toast.info('2FA coming in Day 22')}
+            onClick={() => toast.info('2FA coming soon')}
           >
             Enable 2FA
           </Button>
