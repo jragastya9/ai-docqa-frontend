@@ -1,4 +1,13 @@
-type Tenant = { name: string; plan: string };
+﻿'use client';
+
+export type Tenant = {
+  name: string;
+  plan: string;
+  brandName?: string;
+  logo?: string;
+  primaryColor?: string;
+  subdomain?: string;
+};
 
 type Listener = (tenant: Tenant | null) => void;
 
@@ -31,7 +40,6 @@ export const tenantStore = {
     listeners.forEach((l) => l(current));
   },
 
-  /** Merge partial update — e.g. tenantStore.patch({ plan: 'pro' }) */
   patch(partial: Partial<Tenant>) {
     if (!current) return;
     this.set({ ...current, ...partial });
