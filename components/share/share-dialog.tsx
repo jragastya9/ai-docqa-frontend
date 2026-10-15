@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import {
@@ -215,7 +215,7 @@ export function ShareDialog({
                   Download
                 </Button>
               </div>
-              <div className="bg-white rounded-lg p-4 flex items-center justify-center border border-border">
+              <div className="bg-background rounded-lg p-4 flex items-center justify-center border border-border">
                 {qrDataUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img

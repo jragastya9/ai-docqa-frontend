@@ -125,13 +125,16 @@ body {
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
+
+  /* But don't animate transitions on theme toggle to avoid flash */
+  html.theme-transition * {
+    transition: none !important;
   }
 }
