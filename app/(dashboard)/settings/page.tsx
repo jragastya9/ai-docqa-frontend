@@ -13,6 +13,9 @@ import {
   Check,
   Webhook as WebhookIcon,
   Sparkles,
+  Download,
+  Trash2,
+  LogOut,
 } from 'lucide-react';
 import {
   Card,
@@ -21,6 +24,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
@@ -28,6 +32,7 @@ import {
   type TenantInfo,
   type TenantSettings,
 } from '@/lib/tenant-api';
+import { securityApi, type SessionInfo } from '@/lib/security-api';
 import { tenantStore } from '@/lib/tenant-store';
 
 type Tab = 'profile' | 'ai' | 'branding' | 'domain' | 'security';
@@ -92,6 +97,9 @@ export default function SettingsPage() {
   );
 }
 
+// ═══════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════
 function ProfileTab({ user }: { user: UserInfo | null }) {
   const [name, setName] = useState(user?.name || '');
 
@@ -101,16 +109,6 @@ function ProfileTab({ user }: { user: UserInfo | null }) {
       localStorage.setItem('user', JSON.stringify(updated));
       toast.success('Profile saved');
     }
-  }
-
-  function handleDelete() {
-    if (
-      !confirm(
-        'Delete your account? This cannot be undone. All documents and chats will be permanently removed.'
-      )
-    )
-      return;
-    toast.error('Account deletion coming soon');
   }
 
   return (
@@ -156,22 +154,14 @@ function ProfileTab({ user }: { user: UserInfo | null }) {
             </p>
           </Link>
         </div>
-
-        <div className="pt-6 border-t border-border">
-          <h3 className="text-sm font-semibold text-destructive mb-3 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" />
-            Danger zone
-          </h3>
-          <Button variant="outline" onClick={handleDelete}>
-            Delete account
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );
 }
 
-// ─── AI TAB ───
+// ═══════════════════════════════════════════
+// AI
+// ═══════════════════════════════════════════
 interface ProviderInfo {
   id: string;
   name: string;
@@ -199,10 +189,7 @@ function AITab() {
   const [cachingEnabled, setCachingEnabled] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      tenantApi.me(),
-      tenantApi.getAIStats(),
-    ])
+    Promise.all([tenantApi.me(), tenantApi.getAIStats()])
       .then(([t, statsRes]) => {
         setTenant(t);
         setAiProvider(t.settings?.aiProvider || 'groq');
@@ -213,7 +200,6 @@ function AITab() {
       .catch(() => toast.error('Failed to load AI settings'))
       .finally(() => setLoading(false));
 
-    // Fetch providers list separately
     import('@/lib/api').then(({ default: api }) => {
       api
         .get('/api/tenant/me')
@@ -239,7 +225,12 @@ function AITab() {
   }
 
   async function handleClearCache() {
-    if (!confirm('Clear all cached responses? Repeat questions will hit the API again.')) return;
+    if (
+      !confirm(
+        'Clear all cached responses? Repeat questions will hit the API again.'
+      )
+    )
+      return;
     setClearing(true);
     try {
       await tenantApi.clearAICache();
@@ -271,7 +262,7 @@ function AITab() {
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Choose which AI answers your users' questions.
+            Choose which AI answers your users&apos; questions.
           </p>
 
           {providers.map((p) => (
@@ -335,7 +326,8 @@ function AITab() {
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Extra instructions the AI should follow for your workspace. E.g. "Always answer in Hindi."
+            Extra instructions the AI should follow. E.g. &quot;Always answer
+            in Hindi.&quot;
           </p>
           <textarea
             value={customPrompt}
@@ -350,14 +342,7 @@ function AITab() {
           </p>
           <div className="flex justify-end">
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                'Save instructions'
-              )}
+              Save instructions
             </Button>
           </div>
         </CardContent>
@@ -407,14 +392,7 @@ function AITab() {
 
           <div className="flex gap-2 flex-wrap">
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                'Save caching'
-              )}
+              Save caching
             </Button>
             <Button
               variant="outline"
@@ -433,7 +411,9 @@ function AITab() {
   );
 }
 
-// ─── BRANDING ───
+// ═══════════════════════════════════════════
+// BRANDING
+// ═══════════════════════════════════════════
 function BrandingTab() {
   const [tenant, setTenant] = useState<TenantInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -538,9 +518,7 @@ function BrandingTab() {
           <input
             type="url"
             value={form.logo || ''}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, logo: e.target.value }))
-            }
+            onChange={(e) => setForm((f) => ({ ...f, logo: e.target.value }))}
             placeholder="https://example.com/logo.png"
             className="w-full px-4 py-2.5 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
@@ -628,7 +606,9 @@ function BrandingTab() {
   );
 }
 
-// ─── DOMAIN ───
+// ═══════════════════════════════════════════
+// DOMAIN
+// ═══════════════════════════════════════════
 function DomainTab() {
   const [tenant, setTenant] = useState<TenantInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -829,55 +809,536 @@ function DomainTab() {
   );
 }
 
-// ─── SECURITY ───
+// ═══════════════════════════════════════════
+// SECURITY (Day 22)
+// ═══════════════════════════════════════════
 function SecurityTab() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Security</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <label className="text-sm font-medium block mb-1.5">
-            Current password
-          </label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            className="w-full px-4 py-2.5 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium block mb-1.5">
-            New password
-          </label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            className="w-full px-4 py-2.5 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
-        <div className="flex justify-end">
-          <Button onClick={() => toast.info('Coming soon')}>
-            Update password
-          </Button>
-        </div>
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
 
-        <div className="pt-6 border-t border-border">
-          <h3 className="text-sm font-semibold mb-2">
+  const [sessions, setSessions] = useState<SessionInfo[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
+  const [twoFALoading, setTwoFALoading] = useState(true);
+
+  const [setupModal, setSetupModal] = useState<{
+    qrCode: string;
+    secret: string;
+  } | null>(null);
+  const [verifyCode, setVerifyCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
+
+  const [disableModal, setDisableModal] = useState(false);
+  const [disableCode, setDisableCode] = useState('');
+
+  const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    loadSessions();
+    load2FAStatus();
+  }, []);
+
+  async function loadSessions() {
+    try {
+      const data = await securityApi.listSessions();
+      setSessions(data.sessions);
+    } catch {
+      toast.error('Failed to load sessions');
+    } finally {
+      setSessionsLoading(false);
+    }
+  }
+
+  async function load2FAStatus() {
+    try {
+      const data = await securityApi.get2FAStatus();
+      setTwoFAEnabled(data.enabled);
+    } catch {
+      // silent
+    } finally {
+      setTwoFALoading(false);
+    }
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPw !== confirmPw) {
+      toast.error('New passwords do not match');
+      return;
+    }
+    if (newPw.length < 8) {
+      toast.error('New password must be at least 8 characters');
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const res = await securityApi.changePassword(currentPw, newPw);
+      toast.success(res.message || 'Password changed');
+      localStorage.clear();
+      setTimeout(() => (window.location.href = '/login'), 800);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to change password');
+    } finally {
+      setChangingPassword(false);
+    }
+  }
+
+  async function handleLogoutAll() {
+    if (!confirm('Log out of all devices? You will need to log in again.'))
+      return;
+    try {
+      await securityApi.logoutAll();
+      localStorage.clear();
+      window.location.href = '/login';
+    } catch {
+      toast.error('Failed');
+    }
+  }
+
+  async function handleRevoke(sessionId: string, isCurrent: boolean) {
+    if (!confirm(isCurrent ? 'Log out of this device?' : 'Revoke this session?'))
+      return;
+    try {
+      const res = await securityApi.revokeSession(sessionId);
+      toast.success(res.message || 'Session revoked');
+      if (res.loggedOut) {
+        localStorage.clear();
+        window.location.href = '/login';
+      } else {
+        await loadSessions();
+      }
+    } catch {
+      toast.error('Failed to revoke');
+    }
+  }
+
+  async function handleSetup2FA() {
+    try {
+      const data = await securityApi.setup2FA();
+      setSetupModal({ qrCode: data.qrCode, secret: data.secret });
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to start 2FA setup');
+    }
+  }
+
+  async function handleVerify2FA(e: React.FormEvent) {
+    e.preventDefault();
+    setVerifying(true);
+    try {
+      const res = await securityApi.verify2FA(verifyCode);
+      setBackupCodes(res.backupCodes);
+      setTwoFAEnabled(true);
+      toast.success('2FA enabled');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Invalid code');
+    } finally {
+      setVerifying(false);
+    }
+  }
+
+  async function handleDisable2FA(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      await securityApi.disable2FA(disableCode);
+      setTwoFAEnabled(false);
+      setDisableModal(false);
+      setDisableCode('');
+      toast.success('2FA disabled');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Invalid code');
+    }
+  }
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      await securityApi.exportData();
+      toast.success('Export downloaded');
+    } catch {
+      toast.error('Export failed');
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleDelete() {
+    const confirmText = prompt(
+      'Type DELETE to permanently delete your account and all data:'
+    );
+    if (confirmText !== 'DELETE') return;
+
+    const pw = prompt('Enter your password to confirm:');
+    if (!pw) return;
+
+    setDeleting(true);
+    try {
+      await securityApi.deleteAccount(pw, 'DELETE');
+      toast.success('Account deleted');
+      localStorage.clear();
+      window.location.href = '/login';
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Delete failed');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Change password */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Change password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium block mb-1.5">
+                Current password
+              </label>
+              <input
+                type="password"
+                value={currentPw}
+                onChange={(e) => setCurrentPw(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1.5">
+                New password (min 8 chars)
+              </label>
+              <input
+                type="password"
+                value={newPw}
+                onChange={(e) => setNewPw(e.target.value)}
+                required
+                minLength={8}
+                className="w-full px-4 py-2.5 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1.5">
+                Confirm new password
+              </label>
+              <input
+                type="password"
+                value={confirmPw}
+                onChange={(e) => setConfirmPw(e.target.value)}
+                required
+                minLength={8}
+                className="w-full px-4 py-2.5 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+            <Button type="submit" disabled={changingPassword}>
+              {changingPassword ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                'Update password'
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* 2FA */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="w-4 h-4" />
             Two-factor authentication
-          </h3>
-          <p className="text-sm text-muted-foreground mb-3">
-            Add an extra layer of security to your account.
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {twoFALoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : twoFAEnabled ? (
+            <>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="font-medium">Enabled</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Your account is protected with an authenticator app.
+              </p>
+              <Button variant="outline" onClick={() => setDisableModal(true)}>
+                Disable 2FA
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Add an extra layer of security. After enabling, you&apos;ll need a
+                code from your authenticator app (Google Authenticator, Authy,
+                1Password) to sign in.
+              </p>
+              <Button onClick={handleSetup2FA}>Set up 2FA</Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Sessions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Active sessions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Devices currently logged into your account.
           </p>
-          <Button
-            variant="outline"
-            onClick={() => toast.info('2FA coming soon')}
-          >
-            Enable 2FA
-          </Button>
+
+          {sessionsLoading ? (
+            <Skeleton className="h-20 w-full" />
+          ) : sessions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No active sessions</p>
+          ) : (
+            sessions.map((s) => (
+              <div
+                key={s.id}
+                className="flex items-center justify-between p-3 rounded-lg border border-border"
+              >
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-semibold text-primary">
+                      {s.device.charAt(0)}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {s.browser} · {s.os}
+                      {s.isCurrent && (
+                        <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-600">
+                          This device
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {s.city ? `${s.city}, ` : ''}
+                      {s.country || 'Unknown'} · IP {s.ipAddress || 'unknown'} ·{' '}
+                      {new Date(s.lastActiveAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleRevoke(s.id, s.isCurrent)}
+                >
+                  Revoke
+                </Button>
+              </div>
+            ))
+          )}
+
+          {sessions.length > 1 && (
+            <Button variant="outline" onClick={handleLogoutAll}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Log out of all devices
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Data */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Your data</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={handleExport}
+              disabled={exporting}
+            >
+              {exporting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4 mr-2" />
+              )}
+              Download all my data (JSON)
+            </Button>
+          </div>
+
+          <div className="pt-4 border-t border-border">
+            <p className="text-sm font-semibold text-destructive mb-2 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              Delete account
+            </p>
+            <p className="text-xs text-muted-foreground mb-3">
+              Permanently deletes your account, all documents, chats, and
+              workspace data. Cannot be undone.
+            </p>
+            <Button
+              variant="outline"
+              className="text-destructive hover:text-destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-2" />
+              )}
+              Delete my account
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 2FA Setup Modal */}
+      {setupModal && !backupCodes && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-popover rounded-xl border border-border max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold">Set up 2FA</h3>
+            <p className="text-sm text-muted-foreground">
+              1. Scan this QR code with your authenticator app
+            </p>
+            <img
+              src={setupModal.qrCode}
+              alt="2FA QR code"
+              className="mx-auto rounded-lg border border-border bg-white p-2"
+            />
+            <p className="text-xs text-muted-foreground">
+              Or enter this code manually:
+              <br />
+              <code className="font-mono text-xs bg-muted px-2 py-1 rounded mt-1 inline-block break-all">
+                {setupModal.secret}
+              </code>
+            </p>
+            <form onSubmit={handleVerify2FA} className="space-y-3">
+              <div>
+                <label className="text-sm font-medium block mb-1.5">
+                  2. Enter the 6-digit code
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={verifyCode}
+                  onChange={(e) => setVerifyCode(e.target.value)}
+                  placeholder="123456"
+                  required
+                  className="w-full px-4 py-2.5 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 text-center text-2xl tracking-widest font-mono"
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setSetupModal(null);
+                    setVerifyCode('');
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={verifying || verifyCode.length !== 6}
+                >
+                  {verifying ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : null}
+                  Verify & enable
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      {/* Backup codes modal */}
+      {backupCodes && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-popover rounded-xl border border-border max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold">Save your backup codes</h3>
+            <p className="text-sm text-muted-foreground">
+              Store these somewhere safe. Each code can be used once if you
+              lose access to your authenticator app.
+            </p>
+            <div className="grid grid-cols-2 gap-2 p-4 bg-muted rounded-lg font-mono text-sm">
+              {backupCodes.map((code) => (
+                <div key={code} className="text-center py-1">
+                  {code}
+                </div>
+              ))}
+            </div>
+            <Button
+              className="w-full"
+              onClick={() => {
+                navigator.clipboard.writeText(backupCodes.join('\n'));
+                toast.success('Copied to clipboard');
+              }}
+            >
+              <Copy className="w-4 h-4 mr-2" />
+              Copy all codes
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setBackupCodes(null);
+                setSetupModal(null);
+                setVerifyCode('');
+              }}
+            >
+              I&apos;ve saved them — close
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Disable 2FA modal */}
+      {disableModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-popover rounded-xl border border-border max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold">Disable 2FA</h3>
+            <p className="text-sm text-muted-foreground">
+              Enter a code from your authenticator app or one of your backup
+              codes.
+            </p>
+            <form onSubmit={handleDisable2FA} className="space-y-3">
+              <input
+                type="text"
+                value={disableCode}
+                onChange={(e) => setDisableCode(e.target.value)}
+                placeholder="123456"
+                required
+                className="w-full px-4 py-2.5 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 text-center text-lg tracking-widest font-mono"
+              />
+              <div className="flex gap-2 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setDisableModal(false);
+                    setDisableCode('');
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                >
+                  Disable 2FA
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
