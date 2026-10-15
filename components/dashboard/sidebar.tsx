@@ -15,6 +15,7 @@ import {
   CreditCard,
   BarChart3,
   Crown,
+  LifeBuoy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { tenantStore } from '@/lib/tenant-store';
@@ -26,6 +27,7 @@ const navItems = [
   { href: '/chat', label: 'Chat', icon: MessageSquare },
   { href: '/share', label: 'Share links', icon: Link2 },
   { href: '/team', label: 'Team', icon: Users },
+  { href: '/support', label: 'Support', icon: LifeBuoy },
   { href: '/billing', label: 'Billing', icon: CreditCard },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
