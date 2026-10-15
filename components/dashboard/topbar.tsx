@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Search,
-  Bell,
   ChevronDown,
   LogOut,
   Settings,
@@ -21,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/marketing/theme-toggle';
-import { useNotifications } from '@/components/notifications-context';
+import { NotificationsPanel } from '@/components/notifications-panel';
 import { tenantStore } from '@/lib/tenant-store';
 
 interface TopbarProps {
@@ -30,7 +29,6 @@ interface TopbarProps {
 
 export function Topbar({ user }: TopbarProps) {
   const router = useRouter();
-  const { unreadCount } = useNotifications();
   const [tenant, setTenant] = useState<{ name: string; plan: string } | null>(
     null
   );
@@ -55,7 +53,6 @@ export function Topbar({ user }: TopbarProps) {
 
   return (
     <header className="h-16 border-b border-border bg-card flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
-      {/* Left: search */}
       <div className="flex-1 max-w-md hidden md:block">
         <button
           onClick={() => router.push('/documents')}
@@ -69,24 +66,10 @@ export function Topbar({ user }: TopbarProps) {
         </button>
       </div>
 
-      {/* Right: actions */}
       <div className="flex items-center gap-1 ml-auto">
-        {/* Theme toggle */}
         <ThemeToggle />
+        <NotificationsPanel />
 
-        {/* Notifications */}
-        <button
-          aria-label="Notifications"
-          className="relative inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent transition-colors"
-          onClick={() => router.push('/dashboard')}
-        >
-          <Bell className="w-4 h-4" />
-          {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive" />
-          )}
-        </button>
-
-        {/* User dropdown — trigger IS the button, no wrapper */}
         <DropdownMenu>
           <DropdownMenuTrigger
             className="flex items-center gap-2 pl-1 pr-2 h-9 rounded-md hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
