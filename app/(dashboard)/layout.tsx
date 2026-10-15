@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Suspense, useEffect, useState } from 'react';
 import { Sidebar } from '@/components/dashboard/sidebar';
@@ -50,16 +50,13 @@ export default function DashboardLayout({
       >
         <AuthGate>
           <div className="min-h-screen flex">
-            {/* Desktop sidebar */}
             <aside className="hidden lg:flex w-64 flex-shrink-0">
               <Sidebar />
             </aside>
 
-            {/* Mobile hamburger + drawer */}
             <MobileNav />
 
             <div className="flex-1 flex flex-col min-w-0">
-              {/* Topbar offset on mobile because hamburger is fixed */}
               <div className="hidden lg:block">
                 <TopbarWrapper />
               </div>
@@ -69,7 +66,6 @@ export default function DashboardLayout({
                 {children}
               </main>
 
-              {/* Mobile bottom nav */}
               <BottomNav />
             </div>
           </div>

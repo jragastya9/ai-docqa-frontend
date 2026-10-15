@@ -10,7 +10,6 @@ export default function OfflinePage() {
         <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto">
           <WifiOff className="w-8 h-8 text-muted-foreground" />
         </div>
-
         <div>
           <h1 className="text-2xl font-bold">You're offline</h1>
           <p className="text-muted-foreground mt-2">
@@ -18,7 +17,6 @@ export default function OfflinePage() {
             won't work until you're back online.
           </p>
         </div>
-
         <Button onClick={() => window.location.reload()}>
           <RefreshCw className="w-4 h-4 mr-2" />
           Try again

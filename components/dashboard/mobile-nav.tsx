@@ -10,12 +10,10 @@ export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close drawer on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Lock body scroll when drawer is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -37,7 +35,6 @@ export function MobileNav() {
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* Backdrop */}
       <div
         onClick={() => setOpen(false)}
         className={cn(
@@ -46,7 +43,6 @@ export function MobileNav() {
         )}
       />
 
-      {/* Drawer */}
       <aside
         className={cn(
           'lg:hidden fixed top-0 left-0 bottom-0 z-50 w-72 bg-card border-r border-border transition-transform duration-300 ease-out',

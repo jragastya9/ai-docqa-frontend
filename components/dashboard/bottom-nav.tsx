@@ -40,12 +40,7 @@ export function BottomNav() {
                   : 'text-muted-foreground active:bg-accent'
               )}
             >
-              <Icon
-                className={cn(
-                  'w-5 h-5',
-                  isActive && 'fill-primary/10'
-                )}
-              />
+              <Icon className={cn('w-5 h-5', isActive && 'fill-primary/10')} />
               <span>{item.label}</span>
             </Link>
           );

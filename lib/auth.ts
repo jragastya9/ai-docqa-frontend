@@ -1,11 +1,17 @@
-import NextAuth from 'next-auth';
+﻿import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-console.log(' NextAuth config:');
-console.log('  CLIENT_ID:', process.env.GOOGLE_CLIENT_ID?.slice(0, 25) || 'MISSING');
-console.log('  CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'set' : 'MISSING');
+console.log('NextAuth config:');
+console.log(
+  '  CLIENT_ID:',
+  process.env.GOOGLE_CLIENT_ID?.slice(0, 25) || 'MISSING'
+);
+console.log(
+  '  CLIENT_SECRET:',
+  process.env.GOOGLE_CLIENT_SECRET ? 'set' : 'MISSING'
+);
 console.log('  AUTH_SECRET:', process.env.AUTH_SECRET ? 'set' : 'MISSING');
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -41,8 +47,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         const data = await res.json();
-        user.backendToken = data.token;
-        user.backendUser = data.user;
+        (user as any).backendToken = data.token;
+        (user as any).backendUser = data.user;
         return true;
       } catch (err) {
         console.error('Google sign-in fetch error:', err);
@@ -51,14 +57,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async jwt({ token, user }) {
       if (user) {
-        token.backendToken = user.backendToken;
-        token.backendUser = user.backendUser;
+        (token as any).backendToken = (user as any).backendToken;
+        (token as any).backendUser = (user as any).backendUser;
       }
       return token;
     },
     async session({ session, token }) {
-      session.backendToken = token.backendToken;
-      session.backendUser = token.backendUser;
+      (session as any).backendToken = (token as any).backendToken;
+      (session as any).backendUser = (token as any).backendUser;
       return session;
     },
   },

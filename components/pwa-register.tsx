@@ -7,7 +7,7 @@ export function PwaRegister() {
     if (typeof window === 'undefined') return;
     if (!('serviceWorker' in navigator)) return;
 
-    // Only register in production to avoid dev cache confusion
+    // Only register in production — avoids dev cache confusion
     if (process.env.NODE_ENV !== 'production') return;
 
     window.addEventListener('load', () => {
