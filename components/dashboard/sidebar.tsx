@@ -14,6 +14,7 @@ import {
   Link2,
   CreditCard,
   BarChart3,
+  Crown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { tenantStore } from '@/lib/tenant-store';
@@ -29,6 +30,23 @@ const navItems = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
+const SUPER_ADMIN_EMAILS = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+function isSuperAdmin(): boolean {
+  if (typeof window === 'undefined') return false;
+  const stored = localStorage.getItem('user');
+  if (!stored) return false;
+  try {
+    const user = JSON.parse(stored);
+    return SUPER_ADMIN_EMAILS.includes((user.email || '').toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
 interface SidebarProps {
   onNavigate?: () => void;
 }
@@ -43,9 +61,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     logo?: string;
     primaryColor?: string;
   } | null>(null);
+  const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
-    return tenantStore.subscribe(setTenant);
+    const unsub = tenantStore.subscribe(setTenant);
+    setAdmin(isSuperAdmin());
+    return unsub;
   }, []);
 
   function logout() {
@@ -112,6 +133,24 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             </Link>
           );
         })}
+
+        {admin && (
+          <div className="pt-2 mt-2 border-t border-border">
+            <Link
+              href="/admin"
+              onClick={onNavigate}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                pathname === '/admin' || pathname.startsWith('/admin/')
+                  ? 'bg-amber-500/20 text-amber-500 dark:bg-amber-500/10'
+                  : 'text-amber-500 hover:bg-amber-500/10'
+              )}
+            >
+              <Crown className="w-4 h-4 flex-shrink-0" />
+              <span>Super Admin</span>
+            </Link>
+          </div>
+        )}
       </nav>
 
       <div className="p-3 border-t border-border">
