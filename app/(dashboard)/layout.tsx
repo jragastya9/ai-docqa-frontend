@@ -7,6 +7,7 @@ import { AuthGate } from '@/components/auth-gate';
 import { NotificationsProvider } from '@/components/notifications-context';
 import { MobileNav } from '@/components/dashboard/mobile-nav';
 import { BottomNav } from '@/components/dashboard/bottom-nav';
+import { CommandPalette } from '@/components/command-palette';
 
 function TopbarWrapper() {
   const [user, setUser] = useState<{ name: string; email: string } | null>(
@@ -69,6 +70,9 @@ export default function DashboardLayout({
               <BottomNav />
             </div>
           </div>
+
+          {/* Global command palette — Cmd+K */}
+          <CommandPalette />
         </AuthGate>
       </Suspense>
     </NotificationsProvider>

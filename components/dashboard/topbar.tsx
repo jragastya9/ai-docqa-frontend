@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/marketing/theme-toggle';
 import { NotificationsPanel } from '@/components/notifications-panel';
+import { useOS } from '@/lib/platform';
 import { tenantStore } from '@/lib/tenant-store';
 
 interface TopbarProps {
@@ -29,6 +30,7 @@ interface TopbarProps {
 
 export function Topbar({ user }: TopbarProps) {
   const router = useRouter();
+  const os = useOS();
   const [tenant, setTenant] = useState<{ name: string; plan: string } | null>(
     null
   );
@@ -36,6 +38,17 @@ export function Topbar({ user }: TopbarProps) {
   useEffect(() => {
     return tenantStore.subscribe(setTenant);
   }, []);
+
+  function openPalette() {
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'k',
+        metaKey: os === 'mac',
+        ctrlKey: os !== 'mac',
+        bubbles: true,
+      })
+    );
+  }
 
   function logout() {
     localStorage.clear();
@@ -51,17 +64,27 @@ export function Topbar({ user }: TopbarProps) {
         .toUpperCase()
     : 'U';
 
+  const shortcut = os === 'mac' ? '⌘K' : 'Ctrl K';
+  const shortcutParts = os === 'mac' ? ['⌘', 'K'] : ['Ctrl', 'K'];
+
   return (
     <header className="h-16 border-b border-border bg-card flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
       <div className="flex-1 max-w-md hidden md:block">
         <button
-          onClick={() => router.push('/documents')}
+          onClick={openPalette}
           className="w-full flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background text-sm text-muted-foreground hover:bg-accent transition"
         >
           <Search className="w-4 h-4" />
           <span>Search documents, chats...</span>
-          <kbd className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded border border-border bg-muted">
-            ⌘K
+          <kbd className="ml-auto flex items-center gap-0.5 text-[10px] font-mono text-muted-foreground">
+            {shortcutParts.map((part, i) => (
+              <span
+                key={i}
+                className="px-1.5 py-0.5 rounded border border-border bg-muted"
+              >
+                {part}
+              </span>
+            ))}
           </kbd>
         </button>
       </div>
