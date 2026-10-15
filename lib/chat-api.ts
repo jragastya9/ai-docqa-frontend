@@ -1,4 +1,4 @@
-import api from './api';
+﻿import api from './api';
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -20,6 +20,9 @@ export interface ChatResponse {
   answer: string;
   sources: ChatSource[];
   tokensUsed?: number;
+  provider?: string;
+  model?: string;
+  cached?: boolean;
   duration?: string;
 }
 
@@ -61,21 +64,33 @@ export const chatApi = {
     const { data } = await api.delete(`/api/conversations/${id}`);
     return data;
   },
+
+  async sendFeedback(
+    messageId: string,
+    feedback: 'up' | 'down' | null,
+    note?: string
+  ) {
+    const { data } = await api.post('/api/feedback', {
+      messageId,
+      feedback,
+      note,
+    });
+    return data;
+  },
 };
 
-// ─── Streaming helper ───
 export interface StreamCallbacks {
   onMeta?: (meta: { conversationId: string }) => void;
   onSources?: (sources: ChatSource[]) => void;
   onToken?: (token: string) => void;
-  onDone?: (data: { sources: ChatSource[]; tokensUsed: number }) => void;
+  onDone?: (data: {
+    sources: ChatSource[];
+    tokensUsed: number;
+    cached?: boolean;
+  }) => void;
   onError?: (error: string) => void;
 }
 
-/**
- * Streams a chat response using fetch + ReadableStream.
- * Returns a function to abort the stream (like an EventSource close).
- */
 export function streamChat(
   payload: {
     question: string;
@@ -121,8 +136,6 @@ export function streamChat(
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-
-        // SSE messages are separated by \n\n
         const parts = buffer.split('\n\n');
         buffer = parts.pop() || '';
 
@@ -132,11 +145,8 @@ export function streamChat(
           let dataLine = '';
 
           for (const line of lines) {
-            if (line.startsWith('event: ')) {
-              event = line.slice(7).trim();
-            } else if (line.startsWith('data: ')) {
-              dataLine = line.slice(6);
-            }
+            if (line.startsWith('event: ')) event = line.slice(7).trim();
+            else if (line.startsWith('data: ')) dataLine = line.slice(6);
           }
 
           if (!dataLine) continue;
@@ -162,14 +172,10 @@ export function streamChat(
         }
       }
     } catch (err: any) {
-      if (err.name === 'AbortError') {
-        // User clicked stop — that's fine, no error to report
-        return;
-      }
+      if (err.name === 'AbortError') return;
       callbacks.onError?.(err.message || 'Stream failed');
     }
   })();
 
-  // Return abort function
   return () => controller.abort();
 }

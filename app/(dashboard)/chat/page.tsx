@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Send, Square, MessageSquare } from 'lucide-react';
+import { Send, Square, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import {
@@ -12,12 +12,16 @@ import {
 } from '@/lib/chat-api';
 import { ChatSidebar } from '@/components/chat/chat-sidebar';
 import { UpgradePrompt } from '@/components/UpgradePrompt';
+import { cn } from '@/lib/utils';
 
 interface Message {
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
   sources?: ChatSource[];
   streaming?: boolean;
+  feedback?: 'up' | 'down' | null;
+  cached?: boolean;
 }
 
 export default function ChatPage() {
@@ -27,7 +31,6 @@ export default function ChatPage() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [limitError, setLimitError] = useState<string | null>(null);
 
-  // Sidebar data
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [conversationsLoading, setConversationsLoading] = useState(true);
 
@@ -87,9 +90,12 @@ export default function ChatPage() {
       setConversationId(cid);
       setMessages(
         (data.messages || []).map((m: any) => ({
+          id: m._id,
           role: m.role,
           content: m.content,
           sources: m.sources,
+          feedback: m.feedback,
+          cached: m.cached,
         }))
       );
       setLimitError(null);
@@ -145,7 +151,6 @@ export default function ChatPage() {
         onMeta: ({ conversationId: cid }) => {
           if (!conversationId) {
             setConversationId(cid);
-            // Refresh sidebar so the new conversation appears
             loadConversations();
           }
         },
@@ -172,7 +177,7 @@ export default function ChatPage() {
             return copy;
           });
         },
-        onDone: () => {
+        onDone: async () => {
           setMessages((m) => {
             const copy = [...m];
             const last = copy[copy.length - 1];
@@ -183,6 +188,43 @@ export default function ChatPage() {
           });
           setLoading(false);
           abortRef.current = null;
+
+          // Reload conversation to get message IDs for feedback
+          if (conversationId) {
+            try {
+              const data = await chatApi.getConversation(conversationId);
+              setMessages(
+                (data.messages || []).map((m: any) => ({
+                  id: m._id,
+                  role: m.role,
+                  content: m.content,
+                  sources: m.sources,
+                  feedback: m.feedback,
+                  cached: m.cached,
+                }))
+              );
+            } catch {}
+          } else {
+            // Fetch the current conversation by fetching the list then get the newest
+            try {
+              const list = await chatApi.listConversations();
+              if (list.conversations[0]) {
+                const cid = list.conversations[0]._id;
+                setConversationId(cid);
+                const data = await chatApi.getConversation(cid);
+                setMessages(
+                  (data.messages || []).map((m: any) => ({
+                    id: m._id,
+                    role: m.role,
+                    content: m.content,
+                    sources: m.sources,
+                    feedback: m.feedback,
+                    cached: m.cached,
+                  }))
+                );
+              }
+            } catch {}
+          }
         },
         onError: (err) => {
           if (err.includes('402') || err.toLowerCase().includes('limit')) {
@@ -208,6 +250,41 @@ export default function ChatPage() {
     );
 
     abortRef.current = abort;
+  }
+
+  async function handleFeedback(
+    messageIndex: number,
+    feedback: 'up' | 'down'
+  ) {
+    const msg = messages[messageIndex];
+    if (!msg?.id) return;
+
+    // Optimistic update
+    setMessages((m) => {
+      const copy = [...m];
+      copy[messageIndex] = {
+        ...copy[messageIndex],
+        feedback: copy[messageIndex].feedback === feedback ? null : feedback,
+      };
+      return copy;
+    });
+
+    const nextFeedback = msg.feedback === feedback ? null : feedback;
+
+    try {
+      await chatApi.sendFeedback(msg.id, nextFeedback);
+    } catch {
+      // Revert on failure
+      setMessages((m) => {
+        const copy = [...m];
+        copy[messageIndex] = {
+          ...copy[messageIndex],
+          feedback: msg.feedback || null,
+        };
+        return copy;
+      });
+      toast.error('Failed to save feedback');
+    }
   }
 
   return (
@@ -240,7 +317,11 @@ export default function ChatPage() {
           {messages.length === 0 && !limitError && <EmptyState />}
 
           {messages.map((msg, i) => (
-            <MessageBubble key={i} message={msg} />
+            <MessageBubble
+              key={i}
+              message={msg}
+              onFeedback={(fb) => handleFeedback(i, fb)}
+            />
           ))}
 
           <div ref={bottomRef} />
@@ -283,8 +364,16 @@ export default function ChatPage() {
   );
 }
 
-function MessageBubble({ message }: { message: Message }) {
+function MessageBubble({
+  message,
+  onFeedback,
+}: {
+  message: Message;
+  onFeedback: (fb: 'up' | 'down') => void;
+}) {
   const isUser = message.role === 'user';
+  const canFeedback =
+    !isUser && !message.streaming && !!message.id && !!message.content;
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -295,6 +384,11 @@ function MessageBubble({ message }: { message: Message }) {
             : 'bg-muted text-foreground'
         }`}
       >
+        {message.cached && !isUser && (
+          <div className="text-[10px] uppercase tracking-wide text-primary mb-1">
+            ⚡ From cache
+          </div>
+        )}
         <p className="whitespace-pre-wrap leading-relaxed">
           {message.content}
           {message.streaming && (
@@ -324,6 +418,41 @@ function MessageBubble({ message }: { message: Message }) {
               ))}
             </div>
           </details>
+        )}
+
+        {/* Feedback buttons */}
+        {canFeedback && (
+          <div className="mt-3 pt-3 border-t border-background/20 flex items-center gap-2">
+            <button
+              onClick={() => onFeedback('up')}
+              className={cn(
+                'p-1.5 rounded-md transition-colors',
+                message.feedback === 'up'
+                  ? 'bg-green-500/20 text-green-600'
+                  : 'hover:bg-background/40 opacity-60'
+              )}
+              aria-label="Helpful"
+            >
+              <ThumbsUp className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onFeedback('down')}
+              className={cn(
+                'p-1.5 rounded-md transition-colors',
+                message.feedback === 'down'
+                  ? 'bg-destructive/20 text-destructive'
+                  : 'hover:bg-background/40 opacity-60'
+              )}
+              aria-label="Not helpful"
+            >
+              <ThumbsDown className="w-3.5 h-3.5" />
+            </button>
+            {message.feedback && (
+              <span className="text-[10px] text-muted-foreground">
+                Thanks for the feedback
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -8,6 +8,9 @@ export interface TenantSettings {
   primaryColor?: string;
   supportEmail?: string;
   footerText?: string;
+  aiProvider?: string;
+  customPrompt?: string;
+  cachingEnabled?: boolean;
 }
 
 export interface TenantInfo {
@@ -42,6 +45,25 @@ export const tenantApi = {
 
   async updateBranding(settings: TenantSettings) {
     const { data } = await api.patch('/api/tenant/branding', settings);
+    return data;
+  },
+
+  async updateAISettings(settings: {
+    aiProvider?: string;
+    customPrompt?: string;
+    cachingEnabled?: boolean;
+  }) {
+    const { data } = await api.patch('/api/tenant/ai', settings);
+    return data;
+  },
+
+  async getAIStats() {
+    const { data } = await api.get('/api/tenant/ai/stats');
+    return data;
+  },
+
+  async clearAICache() {
+    const { data } = await api.post('/api/tenant/ai/cache/clear');
     return data;
   },
 
