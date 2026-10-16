@@ -31,23 +31,64 @@ export function Navbar() {
           <span>LocalBiz AI</span>
         </Link>
 
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8 text-sm">
-          <a href="#features" className="text-muted-foreground hover:text-foreground transition">Features</a>
-          <a href="#how" className="text-muted-foreground hover:text-foreground transition">How it works</a>
-          <a href="#pricing" className="text-muted-foreground hover:text-foreground transition">Pricing</a>
-          <a href="#faq" className="text-muted-foreground hover:text-foreground transition">FAQ</a>
+          <a
+            href="/#features"
+            className="text-muted-foreground hover:text-foreground transition"
+          >
+            Features
+          </a>
+          <a
+            href="/#how"
+            className="text-muted-foreground hover:text-foreground transition"
+          >
+            How it works
+          </a>
+          <a
+            href="/#pricing"
+            className="text-muted-foreground hover:text-foreground transition"
+          >
+            Pricing
+          </a>
+          <a
+            href="/#faq"
+            className="text-muted-foreground hover:text-foreground transition"
+          >
+            FAQ
+          </a>
+          <Link
+            href="/changelog"
+            className="text-muted-foreground hover:text-foreground transition"
+          >
+            Changelog
+          </Link>
+          <Link
+            href="/roadmap"
+            className="text-muted-foreground hover:text-foreground transition"
+          >
+            Roadmap
+          </Link>
         </div>
 
+        {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle />
-          <Link href="/login" className="inline-flex items-center justify-center h-9 px-4 text-sm font-medium rounded-md hover:bg-accent transition">
+          <Link
+            href="/login"
+            className="inline-flex items-center justify-center h-9 px-4 text-sm font-medium rounded-md hover:bg-accent transition"
+          >
             Login
           </Link>
-          <Link href="/signup" className="inline-flex items-center justify-center h-9 px-4 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition">
+          <Link
+            href="/signup"
+            className="inline-flex items-center justify-center h-9 px-4 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition"
+          >
             Get Started
           </Link>
         </div>
 
+        {/* Mobile */}
         <div className="md:hidden flex items-center gap-2">
           <ThemeToggle />
           <Sheet>
@@ -56,15 +97,38 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
               <div className="flex flex-col gap-6 mt-8">
-                <a href="#features" className="text-lg">Features</a>
-                <a href="#how" className="text-lg">How it works</a>
-                <a href="#pricing" className="text-lg">Pricing</a>
-                <a href="#faq" className="text-lg">FAQ</a>
+                <a href="/#features" className="text-lg">
+                  Features
+                </a>
+                <a href="/#how" className="text-lg">
+                  How it works
+                </a>
+                <a href="/#pricing" className="text-lg">
+                  Pricing
+                </a>
+                <a href="/#faq" className="text-lg">
+                  FAQ
+                </a>
+                <Link href="/changelog" className="text-lg">
+                  Changelog
+                </Link>
+                <Link href="/roadmap" className="text-lg">
+                  Roadmap
+                </Link>
+                <Link href="/launch" className="text-lg">
+                  Launch
+                </Link>
                 <div className="flex flex-col gap-3 pt-6 border-t border-border">
-                  <Link href="/login" className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium border border-border rounded-md hover:bg-accent transition">
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium border border-border rounded-md hover:bg-accent transition"
+                  >
                     Login
                   </Link>
-                  <Link href="/signup" className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition">
+                  <Link
+                    href="/signup"
+                    className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition"
+                  >
                     Get Started
                   </Link>
                 </div>

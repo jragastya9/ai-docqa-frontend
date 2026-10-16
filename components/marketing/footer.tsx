@@ -23,17 +23,17 @@ export function Footer() {
             <h4 className="font-semibold text-sm mb-3">Product</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#features" className="hover:text-foreground">
+                <a href="/#features" className="hover:text-foreground">
                   Features
                 </a>
               </li>
               <li>
-                <a href="#pricing" className="hover:text-foreground">
+                <a href="/#pricing" className="hover:text-foreground">
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#faq" className="hover:text-foreground">
+                <a href="/#faq" className="hover:text-foreground">
                   FAQ
                 </a>
               </li>
@@ -41,6 +41,35 @@ export function Footer() {
                 <Link href="/signup" className="hover:text-foreground">
                   Sign up
                 </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-sm mb-3">Company</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link href="/launch" className="hover:text-foreground">
+                  Launch
+                </Link>
+              </li>
+              <li>
+                <Link href="/changelog" className="hover:text-foreground">
+                  Changelog
+                </Link>
+              </li>
+              <li>
+                <Link href="/roadmap" className="hover:text-foreground">
+                  Roadmap
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="mailto:hello@localbizai.com"
+                  className="hover:text-foreground"
+                >
+                  Contact
+                </a>
               </li>
             </ul>
           </div>
@@ -67,28 +96,6 @@ export function Footer() {
                 <Link href="/legal/cookies" className="hover:text-foreground">
                   Cookie Policy
                 </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold text-sm mb-3">Contact</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a
-                  href="mailto:support@localbizai.com"
-                  className="hover:text-foreground"
-                >
-                  support@localbizai.com
-                </a>
-              </li>
-              <li>
-                <a
-                  href="mailto:privacy@localbizai.com"
-                  className="hover:text-foreground"
-                >
-                  privacy@localbizai.com
-                </a>
               </li>
             </ul>
           </div>
