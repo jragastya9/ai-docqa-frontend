@@ -16,6 +16,7 @@ import {
   Download,
   Trash2,
   LogOut,
+  Scale,
 } from 'lucide-react';
 import {
   Card,
@@ -139,6 +140,7 @@ function ProfileTab({ user }: { user: UserInfo | null }) {
           <Button onClick={handleSave}>Save changes</Button>
         </div>
 
+        {/* Developer */}
         <div className="pt-6 border-t border-border">
           <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
             <WebhookIcon className="w-4 h-4" />
@@ -153,6 +155,51 @@ function ProfileTab({ user }: { user: UserInfo | null }) {
               Send real-time events to your own systems, Slack, or Zapier
             </p>
           </Link>
+        </div>
+
+        {/* Legal */}
+        <div className="pt-6 border-t border-border">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+            <Scale className="w-4 h-4" />
+            Legal
+          </h3>
+          <div className="grid sm:grid-cols-2 gap-2">
+            <Link
+              href="/legal/privacy"
+              className="block p-3 rounded-lg border border-border hover:bg-accent transition text-sm"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/legal/terms"
+              className="block p-3 rounded-lg border border-border hover:bg-accent transition text-sm"
+            >
+              Terms of Service
+            </Link>
+            <Link
+              href="/legal/refund"
+              className="block p-3 rounded-lg border border-border hover:bg-accent transition text-sm"
+            >
+              Refund Policy
+            </Link>
+            <Link
+              href="/legal/cookies"
+              className="block p-3 rounded-lg border border-border hover:bg-accent transition text-sm"
+            >
+              Cookie Policy
+            </Link>
+          </div>
+        </div>
+
+        {/* Danger zone */}
+        <div className="pt-6 border-t border-border">
+          <h3 className="text-sm font-semibold text-destructive mb-3 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            Danger zone
+          </h3>
+          <p className="text-xs text-muted-foreground mb-3">
+            Account deletion is available in the Security tab.
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -810,7 +857,7 @@ function DomainTab() {
 }
 
 // ═══════════════════════════════════════════
-// SECURITY (Day 22)
+// SECURITY
 // ═══════════════════════════════════════════
 function SecurityTab() {
   const [changingPassword, setChangingPassword] = useState(false);
@@ -901,7 +948,9 @@ function SecurityTab() {
   }
 
   async function handleRevoke(sessionId: string, isCurrent: boolean) {
-    if (!confirm(isCurrent ? 'Log out of this device?' : 'Revoke this session?'))
+    if (
+      !confirm(isCurrent ? 'Log out of this device?' : 'Revoke this session?')
+    )
       return;
     try {
       const res = await securityApi.revokeSession(sessionId);
@@ -1076,8 +1125,8 @@ function SecurityTab() {
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                Add an extra layer of security. After enabling, you&apos;ll need a
-                code from your authenticator app (Google Authenticator, Authy,
+                Add an extra layer of security. After enabling, you&apos;ll need
+                a code from your authenticator app (Google Authenticator, Authy,
                 1Password) to sign in.
               </p>
               <Button onClick={handleSetup2FA}>Set up 2FA</Button>

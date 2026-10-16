@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { PwaRegister } from '@/components/pwa-register';
 import { Providers } from './providers';
+import { CookieConsent } from '@/components/cookie-consent';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -114,6 +115,7 @@ export default function RootLayout({
             {children}
             <Toaster />
             <PwaRegister />
+            <CookieConsent />
           </ThemeProvider>
         </Providers>
       </body>
