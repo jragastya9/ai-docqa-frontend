@@ -51,11 +51,28 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
-      <div>
+            <div>
         <h1 className="text-3xl font-bold tracking-tight">Super Admin</h1>
         <p className="text-muted-foreground mt-1">
           Global view across all tenants
         </p>
+        <div className="flex gap-2 mt-4">
+          <Link href="/admin/tenants">
+            <button className="text-sm px-3 py-1.5 rounded-lg border border-border hover:bg-accent transition">
+              All tenants
+            </button>
+          </Link>
+          <Link href="/admin/backup">
+            <button className="text-sm px-3 py-1.5 rounded-lg border border-border hover:bg-accent transition">
+              Backup &amp; Health
+            </button>
+          </Link>
+          <Link href="/admin/marketing">
+            <button className="text-sm px-3 py-1.5 rounded-lg border border-border hover:bg-accent transition">
+              Marketing
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* Top stats */}
