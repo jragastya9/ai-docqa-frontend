@@ -11,6 +11,7 @@ import {
   Loader2,
   Plus,
   Share2,
+  ExternalLink, // 👈 Added icon for View PDF
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +35,7 @@ interface DocumentItem {
   chunkCount: number;
   status: string;
   createdAt: string;
+  fileUrl?: string;
 }
 
 export default function DocumentsPage() {
@@ -208,6 +210,17 @@ export default function DocumentsPage() {
                   <MoreVertical className="w-4 h-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  
+                  {/* 👇 NEW: View PDF option */}
+                  {doc.fileUrl && (
+                    <DropdownMenuItem
+                      onClick={() => window.open(doc.fileUrl, '_blank')}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View Original PDF
+                    </DropdownMenuItem>
+                  )}
+
                   <DropdownMenuItem
                     onClick={() =>
                       setShareDoc({ id: doc._id, name: doc.fileName })
@@ -216,10 +229,12 @@ export default function DocumentsPage() {
                     <Share2 className="w-4 h-4 mr-2" />
                     Share publicly
                   </DropdownMenuItem>
+
                   <DropdownMenuItem onClick={() => router.push('/chat')}>
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Chat with this
                   </DropdownMenuItem>
+                  
                   <DropdownMenuItem
                     onClick={() => handleDelete(doc._id, doc.fileName)}
                     className="text-destructive focus:text-destructive"
@@ -227,6 +242,7 @@ export default function DocumentsPage() {
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete
                   </DropdownMenuItem>
+
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
