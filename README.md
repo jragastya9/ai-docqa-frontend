@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎨 LocalBiz AI — Frontend
 
-## Getting Started
+> The Next.js 16 dashboard & marketing site for **LocalBiz AI** — a multi-tenant RAG SaaS.
 
-First, run the development server:
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_Now-brightgreen)](https://ai-docqa-frontend-psi.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
+[![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
+
+---
+
+## 🚀 What it does
+
+A marketing site + full authenticated dashboard for a multi-tenant AI SaaS.
+
+- Public landing page (hero, features, pricing, FAQ)
+- Signup / login / password reset flows
+- Dashboard with real-time KPIs
+- Document upload & management
+- Streaming chat with cited answers
+- Team invites with roles
+- Billing & usage metering
+- Settings (branding, AI provider, security, legal)
+- Super admin panel
+- PWA installable, mobile-first, dark mode
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Tech |
+|-------|------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript 5 |
+| Styling | Tailwind CSS v4 + shadcn/ui |
+| Icons | Lucide React |
+| Charts | Recharts |
+| Auth | NextAuth v5 (Google) + JWT |
+| State | React Query (planned) + custom store |
+| PWA | Manifest + Service Worker |
+| Deployment | Vercel |
+
+---
+
+## ✨ Features
+
+- ✅ Landing page with dynamic OG images
+- ✅ Auth (email + Google OAuth)
+- ✅ Chat with SSE streaming
+- ✅ Real-time notifications
+- ✅ Cmd+K command palette
+- ✅ Dark mode + PWA
+- ✅ Settings (6 tabs)
+- ✅ Analytics dashboard
+- ✅ Cookie consent + legal pages
+- ✅ Changelog + Roadmap + Launch pages
+
+---
+
+## ⚙️ Local Setup
+
+### 1. Install
 
 ```bash
+git clone https://github.com/jragastya9/ai-docqa-frontend.git
+cd ai-docqa-frontend
+npm install
+
+2. Environment
+Create .env.local:
+
+env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SUPER_ADMIN_EMAILS=you@example.com
+
+AUTH_SECRET=generate_with_crypto.randomBytes(32).toString('hex')
+AUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3000
+
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+3. Start
+bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open http://localhost:3000.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🚀 Deployment (Vercel)
+Import ai-docqa-frontend repo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Framework: Next.js (auto-detected)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Environment variables: Add all from .env.local
 
-## Learn More
+Build: npm run build (default)
 
-To learn more about Next.js, take a look at the following resources:
+Click Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+After deploy, update:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+NEXT_PUBLIC_SITE_URL = your Vercel URL
 
-## Deploy on Vercel
+AUTH_URL = your Vercel URL
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+NEXTAUTH_URL = your Vercel URL
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Google OAuth redirect URIs
+
+📁 Project Structure
+text
+frontend/
+├── app/
+│   ├── (auth)/          Login, signup, verify
+│   ├── (dashboard)/     Chat, docs, billing, settings
+│   ├── legal/           Privacy, Terms, Cookies
+│   ├── changelog/       Product updates
+│   ├── roadmap/         Public roadmap
+│   ├── share/[token]/   Public Q&A
+│   └── layout.tsx       Root layout
+├── components/
+│   ├── ui/              shadcn primitives
+│   ├── dashboard/       Sidebar, topbar, stat cards
+│   ├── marketing/       Landing page sections
+│   └── notifications-*.tsx
+├── lib/
+│   ├── api.ts           Axios instance
+│   ├── {feature}-api.ts Typed API clients
+│   ├── tenant-store.ts  Global tenant state
+│   └── utils.ts         cn() helper
+└── public/
+    ├── manifest.json    PWA manifest
+    ├── sw.js            Service worker
+    └── icons/           App icons
+📚 Documentation
+See design_system.md for the complete visual language guide.
+
+🔗 Related
+Backend: ai-docqa-backend
+
+Live Demo: ai-docqa-frontend-psi.vercel.app
+
+📄 License
+MIT © 2026 [AGASTYA]
